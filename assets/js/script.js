@@ -24,11 +24,30 @@ function setTheme() {
 
 // setTheme();
 
+function secureRandBelow(n) {
+  if (!Number.isInteger(n) || n <= 0) {
+    throw new RangeError('n must be a positive integer');
+  }
+
+  const maxUnit32 = 0xFFFFFFFF;
+  const limit = Math.floor((maxUnit32 + 1) / n) * n;
+  const arr = new Uint32Array(1);
+
+  while(true) {
+    crypto.getRandomValues(arr);
+    const x = arr[0];
+
+    if (x < limit) {
+      return x % n;
+    }
+  }
+}
+
 function constructPassword(characters, length) {
   var password = "";
 
   for (var i = 0; i < length; i++) {
-    var random = Math.floor(Math.random() * characters.length);
+    var random = secureRandBelow(characters.length);
     var cha = characters[random];
     password += cha;
   }
@@ -68,7 +87,7 @@ function writePassword() {
     characters += "0123456789";
   }
   if (symbolCheck.checked) {
-    characters += "!\"#$%&'()*+,-./:;<=>?@_`{|}~^";
+    characters += "`~!@#$%^&*()-_=+[]{}\\|;:'\",<.>/?";
   }
 
   var cleanLength = checkLength(passwordLength.value);
